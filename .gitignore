@@ -69,3 +69,7 @@ fabric.properties
 
 docs/main*
 node_modules
+
+.DS_Store
+.idea/
+dis
