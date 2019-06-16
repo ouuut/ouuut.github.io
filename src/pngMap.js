@@ -101,7 +101,7 @@ function crc32(str) {
 }
 
 
-var pre = "data:image/png;base64,";
+
 export function setDate(base64image,key,value){
     var key = key+"";
     if(key.length!==4){
@@ -111,17 +111,19 @@ export function setDate(base64image,key,value){
     if(value.length==0){
         throw "value's length must > 0"
     }
-    if(!base64image.toString().startsWith(pre)){
+    var strs = base64image.toString().split(";base64,")
+    if(strs.length!=2){
         throw "not a png image"
     }
-    var base64Code = base64image.toString().substring(pre.length)
+    var pre = strs[0]+";base64,";
+    var base64Code = strs[1];
     var list = Png.splitChunk(atob(base64Code));
     //remove the exist chunk and replace the new chunk
     for(var i in list){
         if(key == list[i].type){
             list[i] = Png.createChunk(key,value);
             var newPng = Png.joinChunk(list);
-            return "data:image/png;base64,"+ btoa(newPng);
+            return pre + btoa(newPng);
         }
     }
     //add the chunk to the end of list
@@ -130,17 +132,18 @@ export function setDate(base64image,key,value){
     list.push(newChunk);
     list.push(iEnd);
     var newPng = Png.joinChunk(list);
-    return "data:image/png;base64,"+ btoa(newPng);
+    return pre + btoa(newPng);
 }
 export function getDate(base64image,key){
     var key = key+"";
     if(key.length!=4){
         throw "key's length must be 4"
     }
-    if(!base64image.toString().startsWith(pre)){
+    var strs = base64image.toString().split(";base64,")
+    if(strs.length!=2){
         throw "not a png image"
     }
-    var base64Code = base64image.toString().substring(pre.length)
+    var base64Code = strs[1];
     var list = Png.splitChunk(atob(base64Code));
     for(var i in list){
         if(key == list[i].type){
