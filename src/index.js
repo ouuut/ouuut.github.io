@@ -1,6 +1,8 @@
 import aesjs from './aes-js.3.1.2.js';
 import QRCode from './QRCode.js';
 import {setDate,getDate} from './pngMap'
+import QrScanner from "./qr-scanner.min.js";
+QrScanner.WORKER_PATH = './qr-scanner-worker.min.js';
 
 
 function el(id){return document.getElementById(id);} // Get elem by ID
@@ -92,9 +94,10 @@ function decrypte_text() {
         }
     }
 }
+
 function encrypte_image() {
     var key = el("key").value;
-    var source = uploadFile;
+    var source = el("img").src;
     if(key.toString().length ==0 || source.toString().length ==0){
         console.error("empty");
     }else{
@@ -185,15 +188,15 @@ function fireEvent(node, eventName) {
     }
 };
 
-el("image_button").addEventListener("click", function () {
-    fireEvent(el("upload"),"click")
-})
+// el("image_button").addEventListener("click", function () {
+//     fireEvent(el("upload"),"click")
+// })
 
-el("x").addEventListener("click", function () {
-    var result = "";
-    el("source").value = result
-    window.location.hash = result
-})
+// el("x").addEventListener("click", function () {
+//     var result = "";
+//     el("source").value = result
+//     window.location.hash = result
+// })
 
 el("encrypte").addEventListener("click", function () {
     encrypte_text()
@@ -216,22 +219,65 @@ window.addEventListener("load", function () {
     }
 });
 
-el("qrcode_button").addEventListener("click", function () {
-    window.location.hash = el("source").value
-    if(window.location.hash) {
-        var e_qrcode = el("qrcode");
-        if(window.qrcode_object == undefined){
-            window.qrcode_object = new QRCode(e_qrcode, {
-                width : window.innerWidth/2,
-                height : window.innerWidth/2
-            });
+tab_listeners.push(function (e,name) {
+    if(name == "qrcode-show"){
+        window.location.hash = el("source").value
+        if(window.location.hash) {
+            var e_qrcode = el("qrcode");
+            if(window.qrcode_object == undefined){
+                window.qrcode_object = new QRCode(e_qrcode, {
+                    width : window.innerWidth/2,
+                    height : window.innerWidth/2
+                });
+            }
+            window.qrcode_object.clear()
+            window.qrcode_object.makeCode(window.location.href);
+            el("qrcode").style.visibility = "visible";
+        } else {
+            el("qrcode").innerHTML="please into content";
         }
-        window.qrcode_object.clear()
-        window.qrcode_object.makeCode(window.location.href);
-        el("qrcode").style.visibility = "visible";
-    } else {
-        // Fragment doesn't exist
     }
+
+    if(name =="qrcode_link"){
+        el("link").innerHTML = window.location
+    }
+
+    if(name =="camera"){
+        const scanner = new QrScanner(el('qr-video'), result => setResult(el("cam-qr-result"), result));
+        scanner.start();
+    }
+
+    if(name =="qrcode_upload"){
+        const scanner = new QrScanner(el('qr-video'), result => setResult(el("cam-qr-result"), result));
+        scanner.start();
+    }
+
+    if(name == "clean"){
+        var result = "";
+        el("source").value = result
+        window.location.hash = result
+        return true;
+    }
+});
+
+function setResult(label, result) {
+    label.textContent = result;
+    console.log("camQrResultTimestamp:"+new Date().toString());
+    label.style.color = 'teal';
+    clearTimeout(label.highlightTimeout);
+    label.highlightTimeout = setTimeout(() => label.style.color = 'inherit', 100);
+    window.location = result;
+}
+
+el("file-selector").addEventListener('change', event => {
+    const file = event.target.files[0];
+    if (!file) {
+        return;
+    }
+    var fileQrResult = el("file-qr-result");
+    QrScanner.scanImage(file)
+        .then(result => setResult(fileQrResult, result))
+        .catch(e => setResult(fileQrResult, e || 'No QR code found.'));
 });
 
 
@@ -239,7 +285,7 @@ el("upload").addEventListener("change", function() {
     if ( this.files && this.files[0] ) {
         var FR= new FileReader();
         FR.onload = function(e) {
-            uploadFile = e.target.result
+            var uploadFile = e.target.result
             el("img").src = uploadFile
         };
         FR.readAsDataURL( this.files[0] );

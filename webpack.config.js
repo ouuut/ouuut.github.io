@@ -4,6 +4,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 var HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 
 module.exports = {
+    watchOptions: {
+        aggregateTimeout: 300,
+        poll: 1000
+    },
     plugins: [
         new CompressionPlugin(),
         new HtmlWebpackPlugin({
