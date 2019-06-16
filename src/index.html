@@ -194,7 +194,7 @@
 
 <!--tab content begin-->
 <div id="text" class="tabcontent">
-    <textarea id="source" class="source" rows=20 id="kw" placeholder="输入需要加密解密的内容"></textarea>
+    <textarea id="source" class="source" rows=19 id="kw" placeholder="输入需要加密解密的内容"></textarea>
 </div>
 
 <div id="qrcode-show" class="tabcontent">
@@ -232,13 +232,21 @@
 <button type="button" class="block" id="encrypte">加密</button>
 <button type="button" class="block" id="decrypte">解密</button>
 
+<!--<input type="file" id="test"><br>-->
+<!--<img id="testimg" src=""><br>-->
 
 <script>
     var tab_listeners = []
     function openCity(evt, name) {
         for(var i in tab_listeners){
-            if (tab_listeners[i](evt,name)==true){
+            var result = tab_listeners[i](evt,name)
+            if (result == undefined){
+                continue;
+            }else if (result==true){
                 return;
+            }else if(typeof String){
+                name = result
+                break;
             }
         }
         var i, tabcontent, tablinks;
