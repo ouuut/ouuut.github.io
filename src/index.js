@@ -2,8 +2,12 @@ import aesjs from './aes-js.3.1.2.js';
 import QRCode from './qrcode.js';
 import {setDate,getDate} from './png'
 import QrScanner from "./qr-scanner.min.js";
-QrScanner.WORKER_PATH = './qr-scanner-worker.min.js';
+import QrScannerWorkerPath from '!!file-loader!./qr-scanner-worker.min.js';
+QrScanner.WORKER_PATH = QrScannerWorkerPath;
 import getTimeBase64 from './text-image.js'
+
+
+
 
 
 function el(id){return document.getElementById(id);} // Get elem by ID
