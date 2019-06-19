@@ -1,16 +1,15 @@
 import aesjs from './aes-js.3.1.2.js';
 import QRCode from './qrcode.js';
-import {setDate,getDate} from './png'
+import {setDate, getDate} from './png'
 import QrScanner from "./qr-scanner.min.js";
 import QrScannerWorkerPath from '!!file-loader!./qr-scanner-worker.min.js';
 QrScanner.WORKER_PATH = QrScannerWorkerPath;
 import getTimeBase64 from './text-image.js'
 
 
-
-
-
-function el(id){return document.getElementById(id);} // Get elem by ID
+function el(id) {
+    return document.getElementById(id);
+} // Get elem by ID
 
 function form256bytes(key) {
     var key = aesjs.utils.utf8.toBytes(key)
@@ -66,17 +65,17 @@ function decrypte_fn(key, encryptedHex) {
 function encrypte_text() {
     var key = el("key").value;
     var source = el("source").value;
-    if(key.toString().length ==0 || source.toString().length ==0){
+    if (key.toString().length == 0 || source.toString().length == 0) {
         console.error("empty");
-    }else{
+    } else {
         try {
             var result = ecrypte_fn(key, source)
-            if(result.toString().length >= 2048){
+            if (result.toString().length >= 2048) {
                 throw "out of the max length of limitation"
             }
             el("source").value = result
             window.location.hash = result
-        }catch(error) {
+        } catch (error) {
             console.error(error);
         }
     }
@@ -84,17 +83,17 @@ function encrypte_text() {
 function decrypte_text() {
     var key = el("key").value;
     var source = el("source").value;
-    if(key.toString().length ==0 || source.toString().length ==0){
+    if (key.toString().length == 0 || source.toString().length == 0) {
         console.error("empty");
-    }else{
+    } else {
         try {
-            if(source.toString().length < 2){
+            if (source.toString().length < 2) {
                 throw "fewer than the min length of ecrypte text"
             }
             var result = decrypte_fn(key, source)
             el("source").value = result
             window.location.hash = result
-        }catch(error) {
+        } catch (error) {
             console.error(error);
         }
     }
@@ -103,16 +102,16 @@ function decrypte_text() {
 function encrypte_image() {
     var key = el("key").value;
     var source = el("img").src;
-    if(key.toString().length ==0 || source.toString().length ==0){
+    if (key.toString().length == 0 || source.toString().length == 0) {
         console.error("empty");
-    }else{
+    } else {
         try {
             var result = ecrypte_fn(key, source)
-            if(result.toString().length >= 204800000){
+            if (result.toString().length >= 204800000) {
                 throw "out of the max length of limitation"
             }
-            el("img").src = setDate(getTimeBase64(),"1111",result)
-        }catch(error) {
+            el("img").src = setDate(getTimeBase64(), "1111", result)
+        } catch (error) {
             console.error(error);
         }
     }
@@ -120,17 +119,17 @@ function encrypte_image() {
 function decrypte_image() {
     var key = el("key").value;
     var source = el("img").src;
-    if(key.toString().length ==0 || source.toString().length ==0){
+    if (key.toString().length == 0 || source.toString().length == 0) {
         console.error("empty");
-    }else{
+    } else {
         try {
-            if(source.toString().length < 2){
+            if (source.toString().length < 2) {
                 throw "fewer than the min length of encrypte text"
             }
-            var result = getDate(el("img").src,"1111")
+            var result = getDate(el("img").src, "1111")
             result = decrypte_fn(key, result)
             el("img").src = result
-        }catch(error) {
+        } catch (error) {
             console.error(error);
         }
     }
@@ -147,7 +146,7 @@ function fireEvent(node, eventName) {
     var doc;
     if (node.ownerDocument) {
         doc = node.ownerDocument;
-    } else if (node.nodeType == 9){
+    } else if (node.nodeType == 9) {
         // the node may be the document itself, nodeType 9 = DOCUMENT_NODE
         doc = node;
     } else {
@@ -185,7 +184,7 @@ function fireEvent(node, eventName) {
         event.synthetic = true; // allow detection of synthetic events
         // The second parameter says go ahead with the default action
         node.dispatchEvent(event, true);
-    } else  if (node.fireEvent) {
+    } else if (node.fireEvent) {
         // IE-old school style, you can drop this if you don't need to support IE8 and lower
         var event = doc.createEventObject();
         event.synthetic = true; // allow detection of synthetic events
@@ -215,62 +214,58 @@ el("decrypte").addEventListener("click", function () {
 
 
 window.addEventListener("load", function () {
-    if(window.location.hash) {
+    if (window.location.hash) {
         el("source").value = window.location.hash.substr(1)
     } else {
         // Fragment doesn't exist
     }
 });
 
-tab_listeners.push(function (e,name) {
-    if(name == "qrcode-show"){
-        window.location.hash = el("source").value
-        if(window.location.hash) {
-            var e_qrcode = el("qrcode");
-            e_qrcode.innerHTML="";
-            if(window.qrcode_object == undefined){
-                window.qrcode_object = new QRCode(e_qrcode, {
-                    width : window.innerWidth/2,
-                    height : window.innerWidth/2
-                });
-            }
-            window.qrcode_object.clear()
-            window.qrcode_object.makeCode(window.location.href);
-            el("qrcode").style.visibility = "visible";
-        } else {
-            el("qrcode").innerHTML="please into content";
+tab_listeners_before.push(function (e, name) {
+    if (name == "qrcode-show") {
+        var e_qrcode = el("qrcode");
+        if (window.qrcode_object == undefined) {
+            var len = Math.min(window.innerHeight,window.innerHeight)
+            window.qrcode_object = new QRCode(e_qrcode, {
+                width: len / 2,
+                height: len / 2
+            });
         }
+        window.qrcode_object.clear()
+        window.qrcode_object.makeCode(window.location.href);
     }
 
-    if(name =="qrcode_link"){
+    if (name == "qrcode_link") {
         el("link").innerHTML = window.location
     }
 
-    if(name =="camera"){
-        const scanner = new QrScanner(el('qr-video'), result => setResult(el("cam-qr-result"), result));
-        scanner.start();
+    if (name == "camera") {
+        if (window.scanner == null) {
+            window.scanner = new QrScanner(el('qr-video'), result => setResult(el("source"), result));
+            window.scanner.start();
+        }
     }
 
-    if(name =="qrcode_upload"){
-        const scanner = new QrScanner(el('qr-video'), result => setResult(el("cam-qr-result"), result));
-        scanner.start();
-    }
+});
 
-    if(name == "clean"){
+tab_listeners_end.push(function (e, name) {
+    if (name == "clean") {
         var result = "";
         el("source").value = result
         window.location.hash = result
-        return "text"
+        return true
     }
-});
+})
 
 function setResult(label, result) {
-    label.textContent = result;
-    console.log("camQrResultTimestamp:"+new Date().toString());
+    label.textContent = result || label.textContent;
+    console.log("camQrResultTimestamp:" + new Date().toString());
     label.style.color = 'teal';
     clearTimeout(label.highlightTimeout);
     label.highlightTimeout = setTimeout(() => label.style.color = 'inherit', 100);
-    window.location = result;
+    window.location = result || window.location;
+    el("source").value = window.location.hash.slice(1)
+    el("defaultOpen").click();
 }
 
 el("file-selector").addEventListener('change', event => {
@@ -278,21 +273,22 @@ el("file-selector").addEventListener('change', event => {
     if (!file) {
         return;
     }
-    var fileQrResult = el("file-qr-result");
+    var fileQrResult = el("source");
     QrScanner.scanImage(file)
         .then(result => setResult(fileQrResult, result))
-        .catch(e => setResult(fileQrResult, e || 'No QR code found.'));
+        .catch(e => setResult(fileQrResult, null));
 });
 
 
-el("upload").addEventListener("change", function() {
-    if ( this.files && this.files[0] ) {
-        var FR= new FileReader();
-        FR.onload = function(e) {
+el("upload").addEventListener("change", function () {
+    el("img").style.display = "block"
+    if (this.files && this.files[0]) {
+        var FR = new FileReader();
+        FR.onload = function (e) {
             var uploadFile = e.target.result
             el("img").src = uploadFile
         };
-        FR.readAsDataURL( this.files[0] );
+        FR.readAsDataURL(this.files[0]);
     }
 }, false);
 

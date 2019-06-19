@@ -99,14 +99,13 @@
         }
 
         img {
-            margin: 10%;
+            margin: 2%;
             width: 80%;
             border-radius: 8px;
             border: 5px solid #dfe1e5;
         }
-
         #qr-video {
-            margin: 10%;
+            margin: 2%;
             width: 80%;
             border-radius: 8px;
             border: 5px solid #dfe1e5;
@@ -194,34 +193,37 @@
 
 <!--tab content begin-->
 <div id="text" class="tabcontent">
-    <textarea id="source" class="source" rows=19 id="kw" placeholder="输入需要加密解密的内容"></textarea>
+    <textarea id="source" class="source" rows=19 id="kw" placeholder="请输入需要加密解密的内容"></textarea>
 </div>
 
 <div id="qrcode-show" class="tabcontent">
+    <h3>生成包含加密信息的二维码:</h3>
     <div id="qrcode"></div>
 </div>
 
 <div id="qrcode_link" class="tabcontent">
-    <h3>Share the Link</h3>
+    <h3>复制分享包含加密信息的链接:</h3>
     <textarea id="link" class="source" rows=18></textarea>
 </div>
 
 <div id="camera" class="tabcontent">
-    <h3>Scan QR_code from Camera:</h3>
+    <h3>扫描包含加密信息的二维码:</h3>
     <video muted playsinline id="qr-video"></video>
-    <span id="cam-qr-result">None</span>
 </div>
 
 <div id="qrcode_upload" class="tabcontent">
-    <h3>Scan QR_code from File:</h3>
+    <h3>上传包含加密信息的二维码:</h3>
     <input type="file" id="file-selector">
-    <div id="file-qr-result">None</div>
 </div>
 
 <div id="image_upload" class="tabcontent">
-    <h3>Upload Image to encrypt and decrypt:</h3>
+    <h3>上传需要解密解密的图片:</h3>
     <input type="file" id="upload"><br>
-    <img id="img">
+    <!--<svg  style="margin: 10%" width="40px" height="40px" aria-hidden="true" focusable="false" data-prefix="far"-->
+          <!--data-icon="file" role="img"-->
+         <!--xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="svg-inline&#45;&#45;fa fa-file fa-w-12 fa-5x"><path fill="currentColor" d="M369.9 97.9L286 14C277 5 264.8-.1 252.1-.1H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V131.9c0-12.7-5.1-25-14.1-34zM332.1 128H256V51.9l76.1 76.1zM48 464V48h160v104c0 13.3 10.7 24 24 24h104v288H48z" class=""></path></svg>-->
+    <!---->
+    <img id="img" style="display: none">
 </div>
 
 <!--tab content end-->
@@ -236,30 +238,40 @@
 <!--<img id="testimg" src=""><br>-->
 
 <script>
-    var tab_listeners = []
+    var tab_listeners_before = []
+    var tab_listeners_end = []
     function openCity(evt, name) {
-        for(var i in tab_listeners){
-            var result = tab_listeners[i](evt,name)
-            if (result == undefined){
+        for (var i in tab_listeners_before) {
+            var result = tab_listeners_before[i](evt, name)
+            if (result == undefined) {
                 continue;
-            }else if (result==true){
+            } else if (result == true) {
                 return;
-            }else if(typeof String){
+            } else if (typeof String) {
                 name = result
                 break;
             }
         }
-        var i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tabcontent");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
+        var element = document.getElementById(name);
+        if (element) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            element.style.display = "block";
+            evt.currentTarget.className += " active";
         }
-        tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        for (var i in tab_listeners_end) {
+            var result = tab_listeners_end[i](evt, name)
+            if (result == true) {
+                return;
+            }
         }
-        document.getElementById(name).style.display = "block";
-        evt.currentTarget.className += " active";
     }
     // Get the element with id="defaultOpen" and click on it
     document.getElementById("defaultOpen").click();
