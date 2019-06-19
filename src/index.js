@@ -258,13 +258,13 @@ tab_listeners_end.push(function (e, name) {
 })
 
 function setResult(label, result) {
-    label.textContent = result || label.textContent;
     console.log("camQrResultTimestamp:" + new Date().toString());
     label.style.color = 'teal';
     clearTimeout(label.highlightTimeout);
     label.highlightTimeout = setTimeout(() => label.style.color = 'inherit', 100);
-    window.location = result || window.location;
-    el("source").value = window.location.hash.slice(1)
+    // window.location = result || window.location;
+    var index = result.toString().indexOf("#");
+    el("source").value = index >0 ? result.substring(index + 1):"";
     el("defaultOpen").click();
 }
 
